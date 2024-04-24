@@ -17,5 +17,6 @@ the CAD model’s topological faces with pre trained model.
 
 ## Command
 docker build -t p2cad_app ./app/build
+
 docker compose up
 
