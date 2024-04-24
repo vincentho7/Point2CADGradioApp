@@ -21,4 +21,4 @@ services:
             count: 1
             capabilities: [gpu]
 volumes:
-  Gallica_App:
+  point2cad:
