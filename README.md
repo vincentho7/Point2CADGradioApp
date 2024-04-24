@@ -14,3 +14,8 @@ the CAD model’s topological faces with pre trained model.
 - Find the effective area of each parametric surface and clip it, leaving enough margin to intersect adjacent surfaces.
 - Perform pairwise surface intersections to obtain a set of topologically plausible object edges.
 - Perform pairwise edge intersection to identify a set of topological corners. Clip edges based on proximity to the remaining surface regions and inferred corners.
+
+## Command
+docker build -t p2cad_app ./app/build
+docker compose up
+
