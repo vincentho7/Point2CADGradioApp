@@ -67,59 +67,66 @@ if __name__ == "__main__":
 
     def process_data(path_in, path_out, validate_checkpoint_path, silent, seed, max_parallel_surfaces, 
                  num_inr_fit_attempts, surfaces_multiprocessing ):
-        path_in = '{folder_path}/{path_in}'
-        info = [path_in, path_out, validate_checkpoint_path, silent, seed, max_parallel_surfaces, \
+        
+        full_path = '{folder_path}/{path_in}'
+        gr.Info("Starting process")
+        if name is None:
+            gr.Warning("Name is empty")
+        ...
+        if success == False:
+            raise gr.Error("Process failed")
+
+        info = [full_path, path_out, validate_checkpoint_path, silent, seed, max_parallel_surfaces, \
                  num_inr_fit_attempts, surfaces_multiprocessing]
-        cfg = ModelConfig(path_in, path_out, validate_checkpoint_path, silent, seed, max_parallel_surfaces, 
+        cfg = ModelConfig(full_path, path_out, validate_checkpoint_path, silent, seed, max_parallel_surfaces, 
                 num_inr_fit_attempts, surfaces_multiprocessing)
-        info = [path_in, path_out, validate_checkpoint_path, silent, seed, max_parallel_surfaces, \
-            num_inr_fit_attempts, surfaces_multiprocessing]
-        seed_everything(cfg.seed)
+        
+    #     seed_everything(cfg.seed)
 
-        fn_process = process_singleprocessing
-        if surfaces_multiprocessing:
-            multiprocessing.set_start_method("spawn", force=True)
-            fn_process = process_multiprocessing
+    #     fn_process = process_singleprocessing
+    #     if surfaces_multiprocessing:
+    #         multiprocessing.set_start_method("spawn", force=True)
+    #         fn_process = process_multiprocessing
 
-    # ============================ load points ============================
-        points_labels = np.loadtxt(cfg.path_in).astype(np.float32)
-        assert (
-            points_labels.shape[1] == 4
-        ), "This pipeline expects annotated point clouds (4 values per point). Refer to README for further instructions"
-        points = points_labels[:, :3]
-        labels = points_labels[:, 3].astype(np.int32)
-        labels = continuous_labels(labels)
+    # # ============================ load points ============================
+    #     points_labels = np.loadtxt(cfg.path_in).astype(np.float32)
+    #     assert (
+    #         points_labels.shape[1] == 4
+    #     ), "This pipeline expects annotated point clouds (4 values per point). Refer to README for further instructions"
+    #     points = points_labels[:, :3]
+    #     labels = points_labels[:, 3].astype(np.int32)
+    #     labels = continuous_labels(labels)
 
-        points = normalize_points(points)
-        if device.type == "cuda":
-            torch.cuda.empty_cache()
+    #     points = normalize_points(points)
+    #     if device.type == "cuda":
+    #         torch.cuda.empty_cache()
 
-        uniq_labels = np.unique(labels)
+    #     uniq_labels = np.unique(labels)
 
-        out_meshes = fn_process(cfg, uniq_labels, points, labels, device)
+    #     out_meshes = fn_process(cfg, uniq_labels, points, labels, device)
 
-        # ============================ save unclipped meshes ============================
-        print("Saving unclipped meshes...")
-        pm_meshes = save_unclipped_meshes(
-            out_meshes, color_list, "{}/unclipped/mesh.ply".format(path_out)
-        )
+    #     # ============================ save unclipped meshes ============================
+    #     print("Saving unclipped meshes...")
+    #     pm_meshes = save_unclipped_meshes(
+    #         out_meshes, color_list, "{}/unclipped/mesh.ply".format(path_out)
+    #     )
 
-        # ============================ save clipped meshes ==============================
-        print("Saving clipped meshes...")
-        clipped_meshes = save_clipped_meshes(
-            pm_meshes, out_meshes, color_list, "{}/clipped/mesh.ply".format(path_out)
-        )
+    #     # ============================ save clipped meshes ==============================
+    #     print("Saving clipped meshes...")
+    #     clipped_meshes = save_clipped_meshes(
+    #         pm_meshes, out_meshes, color_list, "{}/clipped/mesh.ply".format(path_out)
+    #     )
 
-        # ============================ get edges and corners ============================
-        print("Saving topology (edges and corners)...")
-        save_topology(clipped_meshes, "{}/topo/topo.json".format(path_out))
-        mod_path = xyz_to_obj(path_in, f"{path_in.rsplit('.', 1)[0]}.obj")
-        uncl_path = ply_to_obj("{}/unclipped/mesh.ply".format(path_out)) 
-        cli_path = ply_to_obj("{}/clipped/mesh.ply".format(path_out)) 
-        print("Done")
-        #info_text = "iNFORMATION".join(map(str, info))
-        #return info_text , mod_path, uncl_path, cli_path
-        return mod_path, uncl_path, cli_path
+    #     # ============================ get edges and corners ============================
+    #     print("Saving topology (edges and corners)...")
+    #     save_topology(clipped_meshes, "{}/topo/topo.json".format(path_out))
+    #     mod_path = xyz_to_obj(path_in, f"{path_in.rsplit('.', 1)[0]}.obj")
+    #     uncl_path = ply_to_obj("{}/unclipped/mesh.ply".format(path_out)) 
+    #     cli_path = ply_to_obj("{}/clipped/mesh.ply".format(path_out)) 
+    #     print("Done")
+        info_text = "iNFORMATION".join(map(str, info))
+        return info_text #, mod_path, uncl_path, cli_path
+        #return mod_path, uncl_path, cli_path
 
     with gr.Blocks(title="Point2CAD pipeline", theme=gr.themes.Soft()) as demo:
         with gr.Row():
@@ -143,9 +150,8 @@ if __name__ == "__main__":
         process_button = gr.Button("Apply Reconstruction")
         process_button.click(process_data, inputs=[file_dropdown, out_folder, validate_checkpoint_path, silent_cbox, seed_value, max_par, 
                                 inr_attempts, surf_multiproc], 
-#                                outputs=[infobox]) \
-                                outputs=[infobox, data, unclipped, clipped])
+                                outputs=[infobox]) 
+#                                outputs=[infobox, data, unclipped, clipped])
         
-    demo.queue()
-    demo.launch( height=1500, debug=True)
+    demo.queue().launch( height=1500, debug=True)
 
