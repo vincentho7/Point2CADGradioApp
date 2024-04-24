@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  my_gradio_app:
+    build: .
+    image: my_gradio_app:latest
+    environment:
+      - GRADIO_SERVER_NAME=0.0.0.0
+      - GRADIO_SERVER_PORT=7860
+      - SHELL=/bin/bash  # Set the SHELL environment variable
+    ports:
+      - "7860:7860" # Open port
+    volumes: 
+      - .:/work/point2cad
+    runtime: nvidia  # Use NVIDIA Container Toolkit
+    command: python -m app.src.main
+    deploy:   
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            count: 1
+            capabilities: [gpu]
+volumes:
+  Gallica_App:
