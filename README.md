@@ -1,7 +1,7 @@
 # Point2CADGradioApp
 Point2CAD Reconstruction Algorithm and Visualization
 
-This GitHub repository hosts an application built with Gradio for visualizing and reconstructing CAD models using point clouds using Point2CAD. 
+This GitHub repository hosts an application built for Gradio for visualizing 3d Model. The application reconstructs CAD models using Point2CAD with point clouds as an input. 
 
 The Point2CAD algorithm is taken from https://www.obukhov.ai/point2cad BY by Yujia Liu, Anton Obukhov, Jan Dirk Wegner, and Konrad Schindler. 
 
