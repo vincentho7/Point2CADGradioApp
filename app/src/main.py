@@ -51,35 +51,14 @@ def ply_to_obj(input_file):
     mesh.export(output_file, overwrite=True)
     return output_file
 
-if __name__ == "__main__":
-    #device = "cpu"
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-    color_list = make_colormap_optimal()
-    folder_path = "./assets"
-    path_out = "./out"
-    os.makedirs(path_out, exist_ok=True)
-    os.makedirs("{}/unclipped".format(path_out), exist_ok=True)
-    os.makedirs("{}/clipped".format(path_out), exist_ok=True)
-    os.makedirs("{}/topo".format(path_out), exist_ok=True)
-
-    files_in_folder = [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]
-
-    def process_data(path_in, path_out, validate_checkpoint_path, silent, seed, max_parallel_surfaces, 
+def process_data(path_in, path_out, validate_checkpoint_path, silent, seed, max_parallel_surfaces, 
                  num_inr_fit_attempts, surfaces_multiprocessing ):
-        
-        full_path = '{folder_path}/{path_in}'
-        gr.Info("Starting process")
-        if name is None:
-            gr.Warning("Name is empty")
-        ...
-        if success == False:
-            raise gr.Error("Process failed")
-
-        info = [full_path, path_out, validate_checkpoint_path, silent, seed, max_parallel_surfaces, \
-                 num_inr_fit_attempts, surfaces_multiprocessing]
-        cfg = ModelConfig(full_path, path_out, validate_checkpoint_path, silent, seed, max_parallel_surfaces, 
-                num_inr_fit_attempts, surfaces_multiprocessing)
+    full_path = '{folder_path}/{path_in}'
+    
+    info = [full_path, path_out, validate_checkpoint_path, silent, seed, max_parallel_surfaces, \
+                num_inr_fit_attempts, surfaces_multiprocessing]
+    cfg = ModelConfig(full_path, path_out, validate_checkpoint_path, silent, seed, max_parallel_surfaces, 
+            num_inr_fit_attempts, surfaces_multiprocessing)
         
     #     seed_everything(cfg.seed)
 
@@ -124,13 +103,28 @@ if __name__ == "__main__":
     #     uncl_path = ply_to_obj("{}/unclipped/mesh.ply".format(path_out)) 
     #     cli_path = ply_to_obj("{}/clipped/mesh.ply".format(path_out)) 
     #     print("Done")
-        info_text = "iNFORMATION".join(map(str, info))
-        return info_text #, mod_path, uncl_path, cli_path
-        #return mod_path, uncl_path, cli_path
+    info_text = info[0]
+    return info_text #, mod_path, uncl_path, cli_path
+    #return mod_path, uncl_path, cli_path
+
+if __name__ == "__main__":
+    #device = "cpu"
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    color_list = make_colormap_optimal()
+    folder_path = "./assets"
+    path_out = "./out"
+    os.makedirs(path_out, exist_ok=True)
+    os.makedirs("{}/unclipped".format(path_out), exist_ok=True)
+    os.makedirs("{}/clipped".format(path_out), exist_ok=True)
+    os.makedirs("{}/topo".format(path_out), exist_ok=True)
+
+    files_in_folder = [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]
 
     with gr.Blocks(title="Point2CAD pipeline", theme=gr.themes.Soft()) as demo:
         with gr.Row():
             with gr.Tab("Set Evaluation"):
+
                 file_dropdown = gr.Dropdown(choices=files_in_folder, label="Select a file")
                 out_folder = gr.Textbox(path_out, label="output folder", interactive=False)
                 validate_checkpoint_path = gr.Textbox(value=None, label="validate_checkpoint_path")
@@ -153,5 +147,6 @@ if __name__ == "__main__":
                                 outputs=[infobox]) 
 #                                outputs=[infobox, data, unclipped, clipped])
         
-    demo.queue().launch( height=1500, debug=True)
+#    demo.queue().launch( height=1500, debug=True)
+    demo.launch( height=1500, debug=True)
 
